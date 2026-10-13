@@ -1,0 +1,7 @@
+.DS_Store/
+.alpackages/
+.snapshots/
+.vscode/
+.git/
+src/
+app.json
