@@ -1,66 +1,56 @@
 table 50102 "LAA Sample Request Setup"
 {
-    DataClassification = ToBeClassified;
-    
+    Caption = 'Sample Request Setup';
+    DataClassification = CustomerContent;
+    DrillDownPageId = "LAA Sample Request Setup";
+    LookupPageId = "LAA Sample Request Setup";
+
     fields
     {
-        field(1;"Primary Key"; Code[20])
+        field(1; "Primary Key"; Code[10])
         {
-            DataClassification = ToBeClassified;
-            
+            Caption = 'Primary Key';
+            DataClassification = SystemMetadata;
+            NotBlank = false;
         }
         field(2; "Sample Request Nos."; Code[20])
         {
-            DataClassification = ToBeClassified;
+            Caption = 'Sample Request Nos.';
+            DataClassification = CustomerContent;
+            TableRelation = "No. Series";
         }
         field(3; "Default Max. Sample Qty."; Decimal)
         {
-            DataClassification = ToBeClassified;
+            Caption = 'Default Max. Sample Qty.';
+            DataClassification = CustomerContent;
+            MinValue = 0;
         }
-        field(4; "Max. Request per Period"; Integer)
+        field(4; "Max. Requests per Period"; Integer)
         {
-            DataClassification = ToBeClassified;
+            Caption = 'Max. Requests per Period';
+            DataClassification = CustomerContent;
+            MinValue = 0;
         }
         field(5; "Request Period"; DateFormula)
         {
-            DataClassification = ToBeClassified;
+            Caption = 'Request Period';
+            DataClassification = CustomerContent;
         }
     }
-    
-    // keys
-    // {
-    //     key(Key1; {MyField})
-    //     {
-    //         Clustered = true;
-    //     }
-    // }
-    
-    fieldgroups
-    {
-        // Add changes to field groups here
-    }
-    
-    var
-        myInt: Integer;
-    
+    keys { key(PK; "Primary Key") { Clustered = true; } }
+
     trigger OnInsert()
     begin
-        
+        TestField("Primary Key", '');
     end;
-    
+
     trigger OnModify()
     begin
-        
+        TestField("Primary Key", '');
     end;
-    
+
     trigger OnDelete()
     begin
-        
+        Error('The Sample Request Setup record cannot be deleted.');
     end;
-    
-    trigger OnRename()
-    begin
-        
-    end;
-    
 }
