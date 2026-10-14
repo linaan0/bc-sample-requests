@@ -1,10 +1,10 @@
 {
   "id": "fe7072cd-051e-402b-8891-4c3a15a1cc7a",
-  "name": "TaskCutomerSampleRequests",
-  "publisher": "Default Publisher",
+  "name": "TaskCustomerSampleRequests",
+  "publisher": "LAA",
   "version": "1.0.0.0",
   "brief": "",
-  "description": "",
+  "description": "An AL extension for managing customer sample requests, approvals, and shipment tracking.",
   "privacyStatement": "",
   "EULA": "",
   "help": "",
