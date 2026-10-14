@@ -1,4 +1,4 @@
-enum 50100 "Sample Request Status" 
+enum 50100 "LAA Sample Request Status" 
 {
     Extensible = true;
     
