@@ -3,5 +3,4 @@
 .snapshots/
 .vscode/
 .git/
-src/
 app.json
