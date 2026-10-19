@@ -23,4 +23,22 @@ page 50110 "LAA Sample Requests"
             }
         }
     }
+    actions
+    {
+        area(Processing)
+        {
+            action(Print)
+            {
+                Caption = 'Print'; Image = Print; ApplicationArea = All;
+                ToolTip = 'Print the selected sample request packing document without prices.';
+                trigger OnAction()
+                var SampleReport: Report "LAA Sample Request Report";
+                begin
+                    CurrPage.SetSelectionFilter(Rec);
+                    SampleReport.SetTableView(Rec);
+                    SampleReport.RunModal();
+                end;
+            }
+        }
+    }
 }

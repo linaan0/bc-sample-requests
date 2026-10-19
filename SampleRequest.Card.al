@@ -85,6 +85,18 @@ page 50109 "LAA Sample Request"
                 ToolTip = 'Reopen a pending, approved or rejected request for editing.';
                 trigger OnAction() var Mgt: Codeunit "LAA Sample Request Mgt."; begin Mgt.Reopen(Rec); CurrPage.Update(false); end;
             }
+            action(Print)
+            {
+                Caption = 'Print'; Image = Print; ApplicationArea = All;
+                ToolTip = 'Print the sample request packing document without prices.';
+                trigger OnAction()
+                var SampleReport: Report "LAA Sample Request Report";
+                begin
+                    Rec.SetRecFilter();
+                    SampleReport.SetTableView(Rec);
+                    SampleReport.RunModal();
+                end;
+            }
         }
     }
 }
