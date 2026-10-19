@@ -143,7 +143,30 @@ table 50100 "LAA Sample Request Header"
             "Requested By" := CopyStr(UserId(), 1, MaxStrLen("Requested By"));
         Status := Status::Open;
     end;
-    
+        trigger OnModify()
+    begin
+        if xRec.Status <> Status then
+            Error('Change the request status using the document actions.');
+        if xRec."No." <> "No." then
+            Error('The request number cannot be changed.');
+        if (xRec."Customer No." <> "Customer No.") or
+           (xRec."Contact E-mail" <> "Contact E-mail") or
+           (xRec.Project <> Project) or
+           (xRec."Rejection Reason" <> "Rejection Reason") or
+           (xRec."Tracking No." <> "Tracking No.") then
+            EnsureOpen();
+    end;
+
+    trigger OnDelete()
+    var
+        SampleLine: Record "LAA Sample Request Line";
+    begin
+        if not (Status in [Status::Open, Status::Cancelled]) then
+            Error('Request %1 cannot be deleted while its status is %2. Only Open or Cancelled requests can be deleted.', "No.", Status);
+        SampleLine.SetRange("Document No.", "No.");
+        SampleLine.DeleteAll(true);
+    end;
+
     procedure EnsureOpen()
     begin
         if Status <> Status::Open then
