@@ -41,4 +41,50 @@ page 50109 "LAA Sample Request"
             }
         }
     }
+    actions
+    {
+        area(Processing)
+        {
+            action(Submit)
+            {
+                Caption = 'Submit'; Image = SendApprovalRequest; ApplicationArea = All;
+                ToolTip = 'Submit the request for automatic approval or approval by another user.';
+                trigger OnAction() var Mgt: Codeunit "LAA Sample Request Mgt."; begin Mgt.Submit(Rec); CurrPage.Update(false); end;
+            }
+            action(Approve)
+            {
+                Caption = 'Approve'; Image = Approve; ApplicationArea = All;
+                ToolTip = 'Approve a pending request if your limit covers its value.';
+                trigger OnAction() var Mgt: Codeunit "LAA Sample Request Mgt."; begin Mgt.Approve(Rec); CurrPage.Update(false); end;
+            }
+            action(Reject)
+            {
+                Caption = 'Reject'; Image = Reject; ApplicationArea = All;
+                ToolTip = 'Reject a pending request after entering a rejection reason.';
+                trigger OnAction() var Mgt: Codeunit "LAA Sample Request Mgt."; begin Mgt.Reject(Rec); CurrPage.Update(false); end;
+            }
+            action("Mark as Shipped")
+            {
+                Caption = 'Mark as Shipped'; Image = Shipment; ApplicationArea = All;
+                ToolTip = 'Mark an approved request as shipped after entering its tracking number.';
+                trigger OnAction() var Mgt: Codeunit "LAA Sample Request Mgt."; begin Mgt.MarkAsShipped(Rec); CurrPage.Update(false); end;
+            }
+            action(Cancel)
+            {
+                Caption = 'Cancel'; Image = Cancel; ApplicationArea = All;
+                ToolTip = 'Cancel an open, pending approval or approved request.';
+                trigger OnAction()
+                var Mgt: Codeunit "LAA Sample Request Mgt."; ConfirmCancelQst: Label 'Cancel sample request %1?', Comment = '%1 = Request number';
+                begin
+                    if Confirm(ConfirmCancelQst, false, Rec."No.") then begin Mgt.Cancel(Rec); CurrPage.Update(false); end;
+                end;
+            }
+            action(Reopen)
+            {
+                Caption = 'Reopen'; Image = ReOpen; ApplicationArea = All;
+                ToolTip = 'Reopen a pending, approved or rejected request for editing.';
+                trigger OnAction() var Mgt: Codeunit "LAA Sample Request Mgt."; begin Mgt.Reopen(Rec); CurrPage.Update(false); end;
+            }
+        }
+    }
 }
