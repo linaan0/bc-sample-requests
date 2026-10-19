@@ -22,6 +22,7 @@ table 50100 "LAA Sample Request Header"
                 CustomerRec: Record Customer;
                 SampleLine: Record "LAA Sample Request Line";
             begin
+                EnsureOpen();
                 if "Customer No." = '' then begin
                     "Customer Name" := '';
                     exit;
@@ -49,6 +50,7 @@ table 50100 "LAA Sample Request Header"
             var
                 MailManagement: Codeunit "Mail Management";
             begin
+                EnsureOpen();
                 if "Contact E-mail" <> '' then
                     MailManagement.CheckValidEmailAddresses("Contact E-mail");
             end;
@@ -57,6 +59,7 @@ table 50100 "LAA Sample Request Header"
         {
             Caption = 'Project';
             DataClassification = CustomerContent;
+             trigger OnValidate() begin EnsureOpen(); end;
         }
         field(6; "Request Date"; Date)
         {
@@ -140,7 +143,12 @@ table 50100 "LAA Sample Request Header"
             "Requested By" := CopyStr(UserId(), 1, MaxStrLen("Requested By"));
         Status := Status::Open;
     end;
-
+    
+    procedure EnsureOpen()
+    begin
+        if Status <> Status::Open then
+            Error('Request %1 is %2. Only Open requests can be edited.', "No.", Status);
+    end;
     procedure EnsureOpenOrPending()
     begin
         if not (Status in [Status::Open, Status::"Pending Approval"]) then
