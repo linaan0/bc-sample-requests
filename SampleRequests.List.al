@@ -1,4 +1,4 @@
-page 50110 "LAA Sample Requests"
+page 50210 "LAA Sample Requests"
 {
     PageType = List;
     SourceTable = "LAA Sample Request Header";

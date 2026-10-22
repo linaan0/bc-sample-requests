@@ -1,4 +1,4 @@
-pageextension 50115 "LAA Customer Card Ext" extends "Customer Card"
+pageextension 50215 "LAA Customer Card Ext" extends "Customer Card"
 {
     layout
     {

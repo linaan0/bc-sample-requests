@@ -1,4 +1,4 @@
-codeunit 50107 "LAA Sample Request Mgt."
+codeunit 50207 "LAA Sample Request Mgt."
 {
     procedure Submit(var SampleRequest: Record "LAA Sample Request Header")
     var

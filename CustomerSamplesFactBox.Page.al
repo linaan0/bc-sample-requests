@@ -1,4 +1,4 @@
-page 50112 "LAA Customer Samples FactBox"
+page 50212 "LAA Customer Samples FactBox"
 {
     PageType = CardPart;
     SourceTable = Customer;

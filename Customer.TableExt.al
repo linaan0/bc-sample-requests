@@ -1,4 +1,4 @@
-tableextension 50102 "LAA Customer Ext" extends Customer
+tableextension 50202 "LAA Customer Ext" extends Customer
 {
     fields
     {

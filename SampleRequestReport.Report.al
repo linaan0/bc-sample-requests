@@ -1,4 +1,4 @@
-report 50117 "LAA Sample Request Report"
+report 50217 "LAA Sample Request Report"
 {
     Caption = 'Sample Request';
     UsageCategory = ReportsAndAnalysis;

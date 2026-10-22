@@ -1,4 +1,4 @@
-pageextension 50114 "LAA User Setup Ext" extends "User Setup"
+pageextension 50214 "LAA User Setup Ext" extends "User Setup"
 {
     layout
     {

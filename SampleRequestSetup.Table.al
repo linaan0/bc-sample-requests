@@ -1,4 +1,4 @@
-table 50102 "LAA Sample Request Setup"
+table 50202 "LAA Sample Request Setup"
 {
     Caption = 'Sample Request Setup';
     DataClassification = CustomerContent;

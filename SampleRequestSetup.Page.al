@@ -1,4 +1,4 @@
-page 50111 "LAA Sample Request Setup"
+page 50211 "LAA Sample Request Setup"
 {
     PageType = Card;
     SourceTable = "LAA Sample Request Setup";

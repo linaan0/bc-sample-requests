@@ -1,4 +1,4 @@
-page 50108 "LAA Sample Request Lines"
+page 50208 "LAA Sample Request Lines"
 {
     PageType = ListPart;
     SourceTable = "LAA Sample Request Line";

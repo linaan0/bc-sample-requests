@@ -1,4 +1,4 @@
-tableextension 50101 "LAA User Setup Ext" extends "User Setup"
+tableextension 50201 "LAA User Setup Ext" extends "User Setup"
 {
     fields
     {

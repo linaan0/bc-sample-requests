@@ -1,4 +1,4 @@
-table 50100 "LAA Sample Request Header"
+table 50200 "LAA Sample Request Header"
 {
     Caption = 'Sample Request';
     DataClassification = CustomerContent;

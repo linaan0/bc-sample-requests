@@ -1,4 +1,4 @@
-table 50101 "LAA Sample Request Line"
+table 50201 "LAA Sample Request Line"
 {
     Caption = 'Sample Request Line';
     DataClassification = CustomerContent;

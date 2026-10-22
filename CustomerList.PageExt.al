@@ -1,4 +1,4 @@
-pageextension 50116 "LAA Customer List Ext" extends "Customer List"
+pageextension 50216 "LAA Customer List Ext" extends "Customer List"
 {
     actions
     {
