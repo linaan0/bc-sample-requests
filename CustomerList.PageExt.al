@@ -1,5 +1,17 @@
 pageextension 50216 "LAA Customer List Ext" extends "Customer List"
 {
+    layout
+    {
+        addfirst(FactBoxes)
+        {
+            part("LAA Customer Samples"; "LAA Customer Samples FactBox")
+            {
+                ApplicationArea = All;
+                SubPageLink = "No." = field("No.");
+                ToolTip = 'Shows this customer''s open and shipped sample request counts.';
+            }
+        }
+    }
     actions
     {
         addlast(Processing)
