@@ -16,6 +16,15 @@ report 50217 "LAA Sample Request Report"
             column(RequestDate; "Request Date") { }
             column(CustomerName; "Customer Name") { }
             column(ContactEmail; "Contact E-mail") { }
+            column(ReportTitleLbl; ReportTitleLbl) { }
+            column(RequestNoLbl; RequestNoLbl) { }
+            column(RequestDateLbl; RequestDateLbl) { }
+            column(CustomerLbl; CustomerLbl) { }
+            column(ContactEmailLbl; ContactEmailLbl) { }
+            column(ItemNoLbl; ItemNoLbl) { }
+            column(DescriptionLbl; DescriptionLbl) { }
+            column(QuantityLbl; QuantityLbl) { }
+            column(UnitOfMeasureLbl; UnitOfMeasureLbl) { }
 
             dataitem(Line; "LAA Sample Request Line")
             {
@@ -28,4 +37,14 @@ report 50217 "LAA Sample Request Report"
             }
         }
     }
+    var
+        ReportTitleLbl: Label 'Sample Request';
+        RequestNoLbl: Label 'Request No.';
+        RequestDateLbl: Label 'Request Date';
+        CustomerLbl: Label 'Customer';
+        ContactEmailLbl: Label 'Contact E-mail';
+        ItemNoLbl: Label 'Item No.';
+        DescriptionLbl: Label 'Description';
+        QuantityLbl: Label 'Quantity';
+        UnitOfMeasureLbl: Label 'Unit of Measure';
 }
