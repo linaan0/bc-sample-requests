@@ -1,5 +1,11 @@
 codeunit 50207 "LAA Sample Request Mgt."
 {
+    procedure CreateForCustomer(CustomerNo: Code[20]; var SampleRequest: Record "LAA Sample Request Header")
+    begin
+        SampleRequest.Init();
+        SampleRequest.Validate("Customer No.", CustomerNo);
+        SampleRequest.Insert(true);
+    end;
     procedure Submit(var SampleRequest: Record "LAA Sample Request Header")
     var
         SampleLine: Record "LAA Sample Request Line";

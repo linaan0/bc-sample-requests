@@ -37,13 +37,12 @@ pageextension 50216 "LAA Customer List Ext" extends "Customer List"
                 Image = NewDocument;
                 ToolTip = 'Create a new sample request for the selected customer.';
                 trigger OnAction()
-                var Header: Record "LAA Sample Request Header";
+                var
+                    Header: Record "LAA Sample Request Header";
+                    Mgt: Codeunit "LAA Sample Request Mgt.";
                 begin
                     Rec.TestField("No.");
-                    Header.Init();
-                    Header.Insert(true);
-                    Header.Validate("Customer No.", Rec."No.");
-                    Header.Modify(true);
+                    Mgt.CreateForCustomer(Rec."No.", Header);
                     Page.Run(Page::"LAA Sample Request", Header);
                 end;
             }

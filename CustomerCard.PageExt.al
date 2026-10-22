@@ -36,12 +36,11 @@ pageextension 50215 "LAA Customer Card Ext" extends "Customer Card"
                 Image = NewDocument;
                 ToolTip = 'Create a new sample request for this customer.';
                 trigger OnAction()
-                var Header: Record "LAA Sample Request Header";
+                var
+                    Header: Record "LAA Sample Request Header";
+                    Mgt: Codeunit "LAA Sample Request Mgt.";
                 begin
-                    Header.Init();
-                    Header.Insert(true);
-                    Header.Validate("Customer No.", Rec."No.");
-                    Header.Modify(true);
+                    Mgt.CreateForCustomer(Rec."No.", Header);
                     Page.Run(Page::"LAA Sample Request", Header);
                 end;
             }
