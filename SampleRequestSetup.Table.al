@@ -11,7 +11,6 @@ table 50202 "LAA Sample Request Setup"
         {
             Caption = 'Primary Key';
             DataClassification = SystemMetadata;
-            NotBlank = false;
         }
         field(2; "Sample Request Nos."; Code[20])
         {
@@ -38,7 +37,8 @@ table 50202 "LAA Sample Request Setup"
         }
     }
     keys { key(PK; "Primary Key") { Clustered = true; } }
-
+    var
+        DeleteErr: Label 'The Sample Request Setup record cannot be deleted. Change its values instead.';
     trigger OnInsert()
     begin
         TestField("Primary Key", '');
@@ -51,6 +51,6 @@ table 50202 "LAA Sample Request Setup"
 
     trigger OnDelete()
     begin
-        Error('The Sample Request Setup record cannot be deleted.');
+        Error(DeleteErr);
     end;
 }

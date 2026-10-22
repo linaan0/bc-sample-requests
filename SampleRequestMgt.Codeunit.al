@@ -1,17 +1,35 @@
 codeunit 50207 "LAA Sample Request Mgt."
 {
+    var
+        SubmitStatusErr: Label 'Request %1 is %2. Only Open requests can be submitted.', Comment = '%1 = Request number, %2 = Current status';
+        CustomerBlockedErr: Label 'Customer %1 is blocked. Choose a customer that is not blocked before submitting.', Comment = '%1 = Customer number';
+        NoLinesErr: Label 'Request %1 has no lines. Add at least one item before submitting.', Comment = '%1 = Request number';
+        PeriodLimitErr: Label 'Customer %1 already has %2 sample requests since %3. The maximum is %4 per period. Wait until the period has passed or ask for an exception.', Comment = '%1 = Customer number, %2 = Number of requests in the period, %3 = Period start date, %4 = Maximum requests per period';
+        OnlyPendingErr: Label 'Request %1 is %2. Only Pending Approval requests can be approved or rejected.', Comment = '%1 = Request number, %2 = Current status';
+        OwnRequestErr: Label 'You cannot approve or reject request %1 because you requested it. Ask another authorized user.', Comment = '%1 = Request number';
+        LimitErr: Label 'Your sample approval limit does not cover request %1. Ask a user with a higher limit.', Comment = '%1 = Request number';
+        ReasonErr: Label 'Enter a rejection reason before rejecting request %1.', Comment = '%1 = Request number';
+        ShipStatusErr: Label 'Request %1 is %2. Only Approved requests can be marked as shipped.', Comment = '%1 = Request number, %2 = Current status';
+        TrackingErr: Label 'Enter a tracking number before marking request %1 as shipped.', Comment = '%1 = Request number';
+        CancelStatusErr: Label 'Request %1 is %2. Only Open, Pending Approval or Approved requests can be cancelled.', Comment = '%1 = Request number, %2 = Current status';
+        ReopenStatusErr: Label 'Request %1 is %2. Only Pending Approval, Approved or Rejected requests can be reopened.', Comment = '%1 = Request number, %2 = Current status';
+        ItemDeleteErr: Label 'Item %1 is on sample request %2. Cancel or finish that request before deleting the item.', Comment = '%1 = Item number, %2 = Request number';
+        CustomerDeleteErr: Label 'Customer %1 is on sample request %2. Cancel or finish that request before deleting the customer.', Comment = '%1 = Customer number, %2 = Request number';
+
     procedure CreateForCustomer(CustomerNo: Code[20]; var SampleRequest: Record "LAA Sample Request Header")
     begin
+        // Validate before Insert so a blocked customer fails without leaving an empty request behind.
         SampleRequest.Init();
         SampleRequest.Validate("Customer No.", CustomerNo);
         SampleRequest.Insert(true);
     end;
+
     procedure Submit(var SampleRequest: Record "LAA Sample Request Header")
     var
         ApprovalLimit: Decimal;
     begin
         if SampleRequest.Status <> SampleRequest.Status::Open then
-            Error('Request %1 is %2. Only Open requests can be submitted.', SampleRequest."No.", SampleRequest.Status);
+            Error(SubmitStatusErr, SampleRequest."No.", SampleRequest.Status);
         SampleRequest.TestField("Customer No.");
         CheckCustomerNotBlocked(SampleRequest."Customer No.");
         CheckHasLines(SampleRequest);
@@ -38,16 +56,16 @@ codeunit 50207 "LAA Sample Request Mgt."
     begin
         CheckCanDecide(SampleRequest);
         if SampleRequest."Rejection Reason" = '' then
-            Error('Enter a rejection reason before rejecting request %1.', SampleRequest."No.");
+            Error(ReasonErr, SampleRequest."No.");
         SetStatus(SampleRequest, SampleRequest.Status::Rejected);
     end;
 
     procedure MarkAsShipped(var SampleRequest: Record "LAA Sample Request Header")
     begin
         if SampleRequest.Status <> SampleRequest.Status::Approved then
-            Error('Request %1 is %2. Only Approved requests can be marked as shipped.', SampleRequest."No.", SampleRequest.Status);
+            Error(ShipStatusErr, SampleRequest."No.", SampleRequest.Status);
         if SampleRequest."Tracking No." = '' then
-            Error('Enter a tracking number before marking request %1 as shipped.', SampleRequest."No.");
+            Error(TrackingErr, SampleRequest."No.");
         SampleRequest."Shipped Date" := WorkDate();
         SetStatus(SampleRequest, SampleRequest.Status::Shipped);
     end;
@@ -55,14 +73,14 @@ codeunit 50207 "LAA Sample Request Mgt."
     procedure Cancel(var SampleRequest: Record "LAA Sample Request Header")
     begin
         if not (SampleRequest.Status in [SampleRequest.Status::Open, SampleRequest.Status::"Pending Approval", SampleRequest.Status::Approved]) then
-            Error('Request %1 is %2. Only Open, Pending Approval or Approved requests can be cancelled.', SampleRequest."No.",SampleRequest.Status);
+            Error(CancelStatusErr, SampleRequest."No.", SampleRequest.Status);
         SetStatus(SampleRequest, SampleRequest.Status::Cancelled);
     end;
 
     procedure Reopen(var SampleRequest: Record "LAA Sample Request Header")
     begin
         if not (SampleRequest.Status in [SampleRequest.Status::"Pending Approval", SampleRequest.Status::Approved, SampleRequest.Status::Rejected]) then
-            Error('Request %1 is %2. Only Pending Approval, Approved or Rejected requests can be reopened.',  SampleRequest."No.",SampleRequest.Status);
+            Error(ReopenStatusErr, SampleRequest."No.", SampleRequest.Status);
         Clear(SampleRequest."Approved By");
         Clear(SampleRequest."Approved Date");
         SetStatus(SampleRequest, SampleRequest.Status::Open);
@@ -74,6 +92,7 @@ codeunit 50207 "LAA Sample Request Mgt."
     begin
         OldStatus := SampleRequest.Status;
         SampleRequest.Status := NewStatus;
+        // Modify(true) so the table's transition rules run for every status change.
         SampleRequest.Modify(true);
         OnAfterStatusChanged(SampleRequest, OldStatus, NewStatus);
     end;
@@ -81,12 +100,12 @@ codeunit 50207 "LAA Sample Request Mgt."
     local procedure CheckCanDecide(var SampleRequest: Record "LAA Sample Request Header")
     begin
         if SampleRequest.Status <> SampleRequest.Status::"Pending Approval" then
-            Error('Request %1 is %2. Only Pending Approval requests can be approved or rejected.', SampleRequest."No.",SampleRequest.Status);
+            Error(OnlyPendingErr, SampleRequest."No.", SampleRequest.Status);
         if SampleRequest."Requested By" = UserId() then
-            Error('You cannot approve or reject request %1 because you requested it. Ask another authorized user.', SampleRequest."No.");
+            Error(OwnRequestErr, SampleRequest."No.");
         SampleRequest.CalcFields("Total Amount");
         if GetApprovalLimit() < SampleRequest."Total Amount" then
-            Error('Your sample approval limit does not cover request %1. Ask a user with a higher limit.', SampleRequest."No.");
+            Error(LimitErr, SampleRequest."No.");
     end;
 
     local procedure GetApprovalLimit(): Decimal
@@ -104,7 +123,7 @@ codeunit 50207 "LAA Sample Request Mgt."
     begin
         Customer.Get(CustomerNo);
         if Customer.Blocked <> Customer.Blocked::" " then
-            Error('Customer %1 is blocked. Choose a customer that is not blocked before submitting.', CustomerNo);
+            Error(CustomerBlockedErr, Customer."No.");
     end;
 
     local procedure CheckHasLines(var SampleRequest: Record "LAA Sample Request Header")
@@ -113,7 +132,7 @@ codeunit 50207 "LAA Sample Request Mgt."
     begin
         SampleLine.SetRange("Document No.", SampleRequest."No.");
         if SampleLine.IsEmpty() then
-            Error('Request %1 has no lines. Add at least one item before submitting.', SampleRequest."No.");
+            Error(NoLinesErr, SampleRequest."No.");
     end;
 
     local procedure CheckRequestLimit(var SampleRequest: Record "LAA Sample Request Header")
@@ -129,7 +148,7 @@ codeunit 50207 "LAA Sample Request Mgt."
         PeriodStart := CalcDate(Setup."Request Period", WorkDate());
         RequestCount := CountOtherRequests(SampleRequest, PeriodStart);
         if RequestCount >= Setup."Max. Requests per Period" then
-            Error('Customer %1 already has %2 sample requests since %3. The maximum is %4 per period. Wait until the period has passed or ask for an exception.', SampleRequest."Customer No.", RequestCount, PeriodStart, Setup."Max. Requests per Period");
+            Error(PeriodLimitErr, SampleRequest."Customer No.", RequestCount, PeriodStart, Setup."Max. Requests per Period");
     end;
 
     local procedure CountOtherRequests(var SampleRequest: Record "LAA Sample Request Header"; PeriodStart: Date): Integer
@@ -161,7 +180,7 @@ codeunit 50207 "LAA Sample Request Mgt."
             repeat
                 if Header.Get(SampleLine."Document No.") then
                     if Header.Status in [Header.Status::Open, Header.Status::"Pending Approval", Header.Status::Approved] then
-                        Error('Item %1 is on sample request %2. Cancel or finish that request before deleting the item.', Rec."No.", Header."No.");
+                        Error(ItemDeleteErr, Rec."No.", Header."No.");
             until SampleLine.Next() = 0;
     end;
 
@@ -175,6 +194,6 @@ codeunit 50207 "LAA Sample Request Mgt."
         Header.SetRange("Customer No.", Rec."No.");
         Header.SetFilter(Status, '%1|%2|%3', Header.Status::Open, Header.Status::"Pending Approval", Header.Status::Approved);
         if Header.FindFirst() then
-            Error('Customer %1 is on sample request %2. Cancel or finish that request before deleting the customer.', Rec."No.",Header."No.");
+            Error(CustomerDeleteErr, Rec."No.", Header."No.");
     end;
 }
