@@ -2,3 +2,5 @@
 .alpackages/
 .snapshots/
 .vscode/
+*.rdl
+*.app
