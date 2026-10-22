@@ -23,23 +23,25 @@ table 50201 "LAA Sample Request Line"
             TableRelation = Item where("LAA Sample Allowed" = const(true), Blocked = const(false));
             trigger OnValidate()
             var
-                ItemRec: Record Item;
+                Item: Record Item;
             begin
                 if "Item No." = '' then begin
                     Description := '';
                     "Unit of Measure Code" := '';
                     "Unit Price" := 0;
-                    "Line Amount" := 0;
+                    RecalculateAmount();
                     exit;
                 end;
-                ItemRec.Get("Item No.");
-                if not ItemRec."LAA Sample Allowed" then
-                    Error('Item %1 (%2) is not marked as allowed for samples. Choose an eligible item.', ItemRec."No.", ItemRec.Description);
-                if ItemRec.Blocked then
-                    Error('Item %1 (%2) is blocked. Choose an unblocked item.', ItemRec."No.", ItemRec.Description);
-                Description := ItemRec.Description;
-                "Unit of Measure Code" := ItemRec."Base Unit of Measure";
-                "Unit Price" := ItemRec."Unit Price";
+                Item.Get("Item No.");
+                if not Item."LAA Sample Allowed" then
+                    Error(ItemNotAllowedErr, Item."No.", Item.Description);
+                if Item.Blocked then
+                    Error(ItemBlockedErr, Item."No.", Item.Description);
+                Description := Item.Description;
+                "Unit of Measure Code" := Item."Base Unit of Measure";
+                "Unit Price" := Item."Unit Price";
+                if Quantity <> 0 then
+                    ValidateQuantity();
                 RecalculateAmount();
             end;
         }
@@ -81,9 +83,50 @@ table 50201 "LAA Sample Request Line"
     }
     keys
     {
-        key(PK; "Document No.", "Line No.") { Clustered = true; }
-        key(Item; "Item No.") { }
+        key(PK; "Document No.", "Line No.")
+        {
+            Clustered = true;
+        }
+        key(Item; "Item No.")
+        {
+        }
     }
+
+    var
+        ItemNotAllowedErr: Label 'Item %1 (%2) is not marked as allowed for samples. Choose an item with Sample Allowed turned on.', Comment = '%1 = Item number, %2 = Item description';
+        ItemBlockedErr: Label 'Item %1 (%2) is blocked. Choose an item that is not blocked.', Comment = '%1 = Item number, %2 = Item description';
+        QuantityPositiveErr: Label 'Quantity must be greater than zero. Enter a quantity of at least 1 sample.';
+        MaxQtyErr: Label 'Quantity %1 is too high for item %2. The maximum is %3. Reduce the quantity and try again.', Comment = '%1 = Entered quantity, %2 = Item number, %3 = Maximum allowed quantity';
+
+    trigger OnInsert()
+    begin
+        CheckHeaderOpen();
+        if "Line No." = 0 then
+            "Line No." := GetNextLineNo();
+    end;
+
+    trigger OnModify()
+    begin
+        CheckHeaderOpen();
+    end;
+
+    trigger OnDelete()
+    begin
+        CheckHeaderOpen();
+    end;
+
+    trigger OnRename()
+    begin
+        CheckHeaderOpen();
+    end;
+
+    local procedure CheckHeaderOpen()
+    var
+        Header: Record "LAA Sample Request Header";
+    begin
+        Header.Get("Document No.");
+        Header.EnsureOpen();
+    end;
 
     local procedure GetNextLineNo(): Integer
     var
@@ -97,22 +140,19 @@ table 50201 "LAA Sample Request Line"
 
     local procedure ValidateQuantity()
     var
-        ItemRec: Record Item;
+        Item: Record Item;
         Setup: Record "LAA Sample Request Setup";
         MaxQty: Decimal;
-        MaxQtyErr: Label 'Quantity must be greater than zero and no more than %1 for item %2. Reduce the quantity and try again.', Comment = '%1 = Maximum allowed quantity, %2 = Item number';
     begin
         if Quantity <= 0 then
-            Error('Quantity must be greater than zero.');
-        if not ItemRec.Get("Item No.") then
+            Error(QuantityPositiveErr);
+        if not Item.Get("Item No.") then
             exit;
-        MaxQty := ItemRec."LAA Max. Sample Qty.";
-        if MaxQty = 0 then begin
-            if Setup.Get('') then
-                MaxQty := Setup."Default Max. Sample Qty.";
-        end;
+        MaxQty := Item."LAA Max. Sample Qty.";
+        if (MaxQty = 0) and Setup.Get('') then
+            MaxQty := Setup."Default Max. Sample Qty.";
         if (MaxQty > 0) and (Quantity > MaxQty) then
-            Error(MaxQtyErr, MaxQty, "Item No.");
+            Error(MaxQtyErr, Quantity, "Item No.", MaxQty);
     end;
 
     local procedure RecalculateAmount()
