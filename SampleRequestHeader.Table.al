@@ -14,7 +14,7 @@ table 50200 "LAA Sample Request Header"
             trigger OnValidate()
             var
                 Setup: Record "LAA Sample Request Setup";
-                NoSeries: Codeunit "No. Series";
+                NoSeries: Codeunit NoSeriesManagement;
             begin
                 if "No." <> xRec."No." then begin
                     GetSetup(Setup);
@@ -172,13 +172,13 @@ table 50200 "LAA Sample Request Header"
     trigger OnInsert()
     var
         Setup: Record "LAA Sample Request Setup";
-        NoSeries: Codeunit "No. Series";
+        NoSeries: Codeunit NoSeriesManagement;
     begin
         if "No." = '' then begin
             GetSetup(Setup);
             Setup.TestField("Sample Request Nos.");
             "No. Series" := Setup."Sample Request Nos.";
-            "No." := NoSeries.GetNextNo("No. Series", WorkDate());
+            "No." := NoSeries.GetNextNo("No. Series", WorkDate(), true);
         end;
         if "Request Date" = 0D then
             "Request Date" := WorkDate();
@@ -213,12 +213,12 @@ table 50200 "LAA Sample Request Header"
     procedure AssistEdit(OldHeader: Record "LAA Sample Request Header"): Boolean
     var
         Setup: Record "LAA Sample Request Setup";
-        NoSeries: Codeunit "No. Series";
+        NoSeries: Codeunit NoSeriesManagement;
     begin
         GetSetup(Setup);
         Setup.TestField("Sample Request Nos.");
-        if NoSeries.LookupRelatedNoSeries(Setup."Sample Request Nos.", OldHeader."No. Series", "No. Series") then begin
-            "No." := NoSeries.GetNextNo("No. Series", WorkDate());
+        if NoSeries.SelectSeries(Setup."Sample Request Nos.", OldHeader."No. Series", "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series", WorkDate(), true);
             exit(true);
         end;
     end;
@@ -228,6 +228,7 @@ table 50200 "LAA Sample Request Header"
         if Status <> Status::Open then
             Error(NotOpenErr, "No.", Status);
     end;
+
     local procedure EnsureOpenOrPending()
     begin
         if not (Status in [Status::Open, Status::"Pending Approval"]) then

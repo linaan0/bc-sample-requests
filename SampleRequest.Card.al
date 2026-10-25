@@ -111,20 +111,6 @@ page 50209 "LAA Sample Request"
                 end;
             }
         }
-
-        area(Promoted)
-        {
-            group(Category_Process)
-            {
-                actionref(Submit_Promoted; Submit) { }
-                actionref(Approve_Promoted; Approve) { }
-                actionref(Reject_Promoted; Reject) { }
-                actionref(MarkAsShipped_Promoted; "Mark as Shipped") { }
-                actionref(Cancel_Promoted; Cancel) { }
-                actionref(Reopen_Promoted; Reopen) { }
-                actionref(Print_Promoted; Print) { }
-            }
-        }
     }
 
     var
